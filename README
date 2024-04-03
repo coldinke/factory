@@ -1,0 +1,18 @@
+# Factory Inspection Systems
+
+## Intro
+
+This is a project for factory.
+
+## Usage
+在安装了 `make` 工具的 Linux 系统上可以通过以下命令运行本项目，其中的 Web 服务在 `http://127.0.0.1:8000` 上访问。
+```bash
+# must be install the make tools
+make init # for initialize the project
+make run # for run the project
+```
+
+## References
+
+## Thanks
+
