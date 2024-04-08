@@ -2,6 +2,7 @@ import logging
 from sqlalchemy import create_engine, Column, Integer, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 from models import SensorData
 from utils import setup_logging
 from config import settings
@@ -28,6 +29,18 @@ class SensorDataDB(Base):
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
+@contextmanager
+def get_seesion():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
 
 def save_sensor_data(sensor_data):
     session = Session()
@@ -43,9 +56,19 @@ def save_sensor_data(sensor_data):
         session.commit()
         logger.info("Sensor data saved to database")
     except Exception as e:
-        session.rollback()
-        logger.error(f"Error saving sensor data: {e}")
-        raise
+            logger.error(f"Error saving sensor data: {e}")
+            raise
     finally:
         session.close()
-    
+
+def get_sensor_data_by_no(nodeno: int):
+    session = Session()
+    try:
+        result = session.query(SensorDataDB)\
+            .filter(SensorDataDB.nodeno == nodeno)\
+            .order_by(SensorDataDB.timestamp.desc()).first()
+        print(result) 
+        return result
+    finally:
+        session.close()
+        

@@ -8,12 +8,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from mqtt_client import setting_mqtt_conf, connect_to_mqtt, start_mqtt_client, stop_mqtt_client, all_sensor_data 
 from utils import setup_logging
+from models import SensorData
+from db import get_sensor_data_by_no
 from config import settings
 
 sensor_data = None
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 setup_logging(settings.log_path)
@@ -23,14 +24,20 @@ logger = logging.getLogger(__name__)
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        if all_sensor_data:
+        if all_sensor_data is None:
             data = all_sensor_data.copy()
             all_sensor_data.clear()
             await websocket.send_text(json.dumps(data))
 
-@app.get("/sensor_data")
-def get_sensor_data():
-    return sensor_data
+@app.get("/sensor_data/{nodeno}", response_model=SensorData)
+def get_sensor_data(nodeno: int):
+    data = get_sensor_data_by_no(nodeno) 
+    print(data)
+    return data
+
+@app.get("/all_sensor_data", response_model=list[SensorData])
+def get_all_sensor_data():
+    return all_sensor_data
 
 @app.get("/", response_class=HTMLResponse)
 async def render_html(request: Request):
