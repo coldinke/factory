@@ -1,46 +1,17 @@
 import logging
-from sqlalchemy import create_engine, Column, Integer, Float, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from models import SensorData
+from models import Base, SensorData, SensorDataDB
 from utils import setup_logging
 from config import settings
 
-# Initalizetion
+# Initialization 
 setup_logging(settings.log_path)
 logger = logging.getLogger(__name__) 
 engine = create_engine(settings.db_path, echo=True)
-Base = declarative_base()
-
-class SensorDataDB(Base):
-    __tablename__ = 'sensor_data'
-
-    id = Column(Integer, primary_key=True)
-    nodeno = Column(Integer)
-    temperature = Column(Float)
-    humidity = Column(Float)
-    timestamp = Column(DateTime)
-
-    def __repr__(self):
-        return f"SensorData(nodeno={self.nodeno}, temperature={self.temperature}, humidity={self.humidity}, timestamp={self.timestamp})"
-
-
-Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
-
-@contextmanager
-def get_seesion():
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-
+Base.metadata.create_all(engine)
 
 def save_sensor_data(sensor_data):
     session = Session()
