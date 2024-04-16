@@ -1,6 +1,7 @@
 import json
 import logging
 import paho.mqtt.client as mqtt
+from paho.mqtt import client as mqtt_client
 from models import SensorData
 from db import save_sensor_data
 from utils import setup_logging
@@ -31,6 +32,8 @@ def connect_to_mqtt(user, passwd, host, port, keepalive, times=10):
         if (times == 0):
             logger.error(f"Error connecting to MQTT Broker: {e}, exit with 1.")
             exit(1)
+
+    return client
 
 # publish the msg to topic
 def publish(client, topic, message):
@@ -73,7 +76,7 @@ def get_mqtt_pub_client(user, passwd, host, port, keepalive):
     return mqtt_pub_client
 
 # run the client.
-def run_mqtt(client, topic, operation_func):
+def run_mqtt(client: mqtt_client, topic, operation_func):
     logger.info('MQTT client started')
     client.loop_start()
     operation_func(client, topic)
