@@ -1,0 +1,20 @@
+.line-chart {
+    height: 80%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+.line-chart-row {
+    display: flex;
+    /* overflow: hidden; */
+}
+
+.line-chart-left {
+    float: left;
+    width: 100%; /* 根据需求调整宽度 */
+}
+
+.line-chart-right {
+    float: right;
+    width: 100%; /* 根据需求调整宽度 */
+}
