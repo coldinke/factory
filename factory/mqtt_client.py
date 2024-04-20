@@ -7,13 +7,12 @@ from db import save_sensor_data
 from utils import setup_logging
 from config import settings
 
-all_sensor_data = list()
 setup_logging(settings.log_path)
 logger = logging.getLogger(__name__) 
 
 # connect the mqtt broker, return the client for mqtt_client
 def connect_to_mqtt(user, passwd, host, port, keepalive, times=10):
-    def on_connect(client, userdata, flags, reason_code):
+    def on_connect(client, userdata, flags, reason_code, properties):
         if reason_code == 0:
             logger.info(f"Connected to MQTT Broker with result code {reason_code}")
         else:
@@ -46,9 +45,8 @@ def publish(client, topic, message):
             logger.warning(f'Failed to send message!')
         
 # subscribe the topic and recive the msg from topic
-def subscribe(client, topic):
+async def subscribe(client, topic):
     def on_message(client, userdata, msg):
-        global sensor_data
         # logger = logging.getLogger(__name__)
         payload = msg.payload.decode()
         logger.info(f"Received sensor data: {payload}")
@@ -63,7 +61,6 @@ def subscribe(client, topic):
                     humidity=node_data["humi"]
                 )
                 sensor_data_list.append(sensor_data.dict())
-            all_sensor_data = sensor_data_list
             save_sensor_data(sensor_data_list)
         except (ValueError, KeyError) as e:
             logger.error(f"Error parsing sensor data: {e}")

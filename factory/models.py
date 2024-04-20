@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
 class SensorData(BaseModel):
-    nodeNo: int
+    nodeno: int
     temperature: float
     humidity: float
     timestamp: datetime = None
@@ -20,13 +20,13 @@ class SensorDataDB(Base):
     __tablename__ = 'sensor_data'
 
     id = Column(Integer, primary_key=True)
-    nodeNo = Column(Integer)
+    nodeno = Column(Integer)
     temperature = Column(Float)
     humidity = Column(Float)
     timestamp = Column(DateTime)
 
     def __repr__(self):
-        return f"SensorData(nodeno={self.nodeNo}, \
+        return f"SensorData(nodeno={self.nodeno}, \
             temperature={self.temperature}, \
                 humidity={self.humidity}, \
                     timestamp={self.timestamp})"

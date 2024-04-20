@@ -38,8 +38,27 @@ def get_sensor_data_by_no(nodeno: int):
         result = session.query(SensorDataDB)\
             .filter(SensorDataDB.nodeno == nodeno)\
             .order_by(SensorDataDB.timestamp.desc()).first()
-        print(result) 
         return result
     finally:
         session.close()
         
+
+def get_all_sensors() -> list[SensorData]:
+    session = Session()
+    all_sensor_data = list()
+    try:
+        for i in range(9):
+            sensor_data_db = session.query(SensorDataDB)\
+                .filter(SensorDataDB.nodeno == i)\
+                .order_by(SensorDataDB.timestamp.desc()).first()
+            if sensor_data_db:
+                sensor_data = SensorData(
+                    nodeno=sensor_data_db.nodeno,
+                    temperature=sensor_data_db.temperature,
+                    humidity=sensor_data_db.humidity,
+                    timestamp=sensor_data_db.timestamp,
+                )
+                all_sensor_data.append(sensor_data)
+        return all_sensor_data
+    finally:
+        session.close()

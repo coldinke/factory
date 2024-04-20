@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     log_path: str = "./logs/factory.log"
     db_path: str = "sqlite:///data/sensors.db"
     # MQTT connection arguments
-    mqtt_host: str = "192.168.1.101"
+    mqtt_host: str = "ubuntu1.orb.local"
     mqtt_port: int = 1883  
     mqtt_keepalive: int = 60
     mqtt_user: str = "user01"
