@@ -1,72 +1,67 @@
-import React, { useEffect, useRef } from "react";
-import * as echarts from "echarts";
-import "./LineChart.css";
+import React, { useEffect, useRef, useState } from 'react';
+import * as echarts from 'echarts';
 
-function LineChart({ nodeData, titleStr }) {
+// 温度和湿度折线图组件
+const LineChart = ({ title, data }) => {
   const chartRef = useRef(null);
 
-  useEffect(() => {
-    const chart = echarts.init(chartRef.current);
+  useEffect(()=> {
+    var myChart = echarts.init(chartRef.current);
 
-    const _y_name = (titleStr === 'temperature' ? 'temperature' : 'humidity') + ('\nmean value')
-    const meanValueData = nodeData.map((item) => ({
-      name: item.nodeName,
-      value: [item.timestamp, item.temperature],
-    }));
-
-    const option = {
+    var option =  {
       title: {
-        text: titleStr,
-      },
-      tooltip: {
-        trigger: "axis",
+        title: title
       },
       xAxis: {
-        type: "time",
+        type: 'time',
+        data: data.map(item => new Date(item.timestamp))
       },
       yAxis: {
-        name: _y_name,
-        type: "value",
+        type: 'value',
+        name: title
       },
       series: [
         {
-          name: "meanValue",
-          type: "line",
-          data: meanValueData,
+          data: data.map(item => item.value),
+          type: 'line'
         }
-      ],
-      legend: {
-        data: ["Temperature"],
-        textStyle: {
-          fontsize: 10,
-          color: "#333",
-        },
-      },
+      ]
     };
+    myChart.setOption(option);
+  
+  }, title, data);
 
-    chart.setOption(option);
-    chart.resize({
-      width: 500,
-      height: 250,
-    });
-  }, [nodeData]);
+  return <div ref={chartRef} className="line-chart" style={{ width: '80%', height: '350px'}} />;
+};
 
-  return <div className="line-chart" ref={chartRef}></div>;
-}
+const LineChartView = ({ nodeArray }) => {
+  const [temperatureData, setTemperatureData] = useState([]);
+  const [humidityData, setHumidityData] = useState([]);
 
-function LineChartView({ nodeArray }) {
+  useEffect(() => {
+    // 计算温度的平均值和时间戳
+    const temperatureMean = nodeArray.length > 0 ? nodeArray.reduce((acc, curr) => acc + curr.temperature, 0) / nodeArray.length : 0;
+    const temperatureTimestamp = Date.now();
+
+    // 计算湿度的平均值和时间戳
+    const humidityMean = nodeArray.length > 0 ? nodeArray.reduce((acc, curr) => acc + curr.humidity, 0) / nodeArray.length : 0;
+    const humidityTimestamp = Date.now();
+
+    // 更新状态
+    setTemperatureData(prevData => [...prevData, { timestamp: temperatureTimestamp, value: temperatureMean }]);
+    setHumidityData(prevData => [...prevData, { timestamp: humidityTimestamp, value: humidityMean }]);
+  }, [nodeArray]);
+
   return (
-    <>
-      <div className="line-chart-view">
-        <div className="temperature-chart">
-          <LineChart nodeData={nodeArray} titleStr={'Temperature'} />
-        </div>
-        <div className="humidity-chart">
-          <LineChart nodeData={nodeArray} titleStr={'Humidity'}/>
-        </div>
+    <div className="line-chart-view">
+      <div className="temperature-chart">
+        <LineChart title="平均温度" data={temperatureData} />
       </div>
-    </>
+      <div className="humidity-chart">
+        <LineChart title="平均湿度" data={humidityData} />
+      </div>
+    </div>
   );
-}
+};
 
 export default LineChartView;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import FactoryView from "./FactoryView";
 import LineChartView from "./LineChart";
@@ -8,11 +8,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function FactoryDashboard() {
   const [nodesData, setNodesData] = useState([]);
+  const intervalRef = useRef(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1/all_sensor_data');
+        const response = await axios.get('http://127.0.0.1:8000/all_sensor_data');
         setNodesData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -20,7 +21,10 @@ export default function FactoryDashboard() {
     }
 
     fetchData();
-  });
+    intervalRef.current = setInterval(fetchData, 10000);
+
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
 
   return (

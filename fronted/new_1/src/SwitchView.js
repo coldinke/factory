@@ -1,12 +1,48 @@
+import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 
 const SwitchStyles = {
   marginBottom: '1rem',
 };
-const Switch = () => {
+
+const Switch = ({ nodeId, onStatusChange }) => {
+  const [isOn, setIsOn] = useState(false);
+
+  const handleSwitchChange = async (event) => {
+    const isChecked = event.target.checked;
+    setIsOn(isChecked)
+
+    const status = isChecked ? 'on' : 'off';
+    const url = `/control/node?node_id=${nodeId}&on_off=${status}`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        onStatusChange(isChecked);
+      } else {
+        console.error('Failed to send MQTT message');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <Form>
-      <Form.Check style={SwitchStyles} type="switch" id="custom-switch" label="Check this switch" />
+      <Form.Check
+        style={SwitchStyles}
+        type="switch"
+        id={`custom-switch-${nodeId}`}
+        label={`Node ${nodeId}`}
+        checked={isOn}
+        onChange={handleSwitchChange}
+      />
     </Form>
   );
 };
@@ -19,12 +55,21 @@ const SwitchViewStyles = {
 };
 
 const SwitchView = () => {
+  const [nodeStatus, setNodeStatus] = useState({});
+
+  const handleStatusChange = (nodeId, isOn) => {
+    setNodeStatus((prevState) => ({
+      ...prevState,
+      [nodeId]: isOn,
+    }));
+  };
+
   return (
     <div style={SwitchViewStyles}>
-    <Switch />
-    <Switch />
-    <Switch />
-    <Switch />
+      <Switch nodeId={1} onStatusChange={(isOn) => handleStatusChange(1, isOn)} />
+      <Switch nodeId={2} onStatusChange={(isOn) => handleStatusChange(2, isOn)} />
+      <Switch nodeId={3} onStatusChange={(isOn) => handleStatusChange(3, isOn)} />
+      <Switch nodeId={4} onStatusChange={(isOn) => handleStatusChange(4, isOn)} />
     </div>
   );
 };

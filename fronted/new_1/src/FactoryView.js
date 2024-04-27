@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Row, Col, Button, Card, ListGroup, ButtonGroup } from 'react-bootstrap';
+import axios from 'axios';
 
 const Node = ({ nodeData, onNodeClick }) => (
   <Button
@@ -16,8 +17,38 @@ const Node = ({ nodeData, onNodeClick }) => (
     </small>
   </Button>
 );
+
 const HistoryDataComponent = ({ nodeData }) => {
-  return <div> history... </div>
+  const [historyData, setHistoryData] = useState([]);
+
+  useEffect(() => {
+    const fetchHistoryData = async() => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/sensor_data/history/${nodeData.nodeno}`)
+        setHistoryData(response.data.slice(0, 10));
+        console.log(response)
+      } catch(error) {
+        console.error('Error fetching history data:', error);
+      }
+    };
+
+    fetchHistoryData();
+
+    return () => {};
+  }, [nodeData]);
+
+  return (
+    <div>
+      <h5>History Data for Node {nodeData.nodeno}</h5>
+      <ul>
+        {historyData.map((data, index) => (
+          <li key={index}>
+            Timestamp: {data.timestamp}, Temperature: {data.temperature}, Humidity: {data.humidity}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 
