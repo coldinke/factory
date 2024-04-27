@@ -62,3 +62,17 @@ def get_all_sensors() -> list[SensorData]:
         return all_sensor_data
     finally:
         session.close()
+
+def get_sensor_data_history(nodeno): 
+    session = Session()
+    res = list()
+    try: 
+        result = session.query(SensorDataDB)\
+           .filter(SensorDataDB.nodeno == nodeno)\
+           .order_by(SensorDataDB.timestamp.desc())\
+           .limit(10)\
+           .all()
+        print(result)
+        return result
+    finally:
+        session.close() 

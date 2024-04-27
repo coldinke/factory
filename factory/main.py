@@ -3,7 +3,7 @@ import logging
 import asyncio
 import json
 from config import settings
-from db import get_sensor_data_by_no, get_all_sensors
+from db import get_sensor_data_by_no, get_all_sensors, get_sensor_data_history
 from fastapi import FastAPI, Request, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -17,6 +17,8 @@ app = FastAPI()
 origins = [
     "http://localhost:8000",
     "https://localhost:8000",
+    "http://localhost:3000",
+    "https://localhost:3000",
     "http://127.0.0.1:3000",
     "https://127.0.0.1:3000",
 ]
@@ -45,6 +47,11 @@ async def websocket_endpoint(websocket: WebSocket):
 async def return_health():
     return {"message": "Pong"}
 
+@app.get("/sensor_data/history/{nodeno}", response_model=list[SensorData])
+def get_node_history(nodeno: int):
+    data = get_sensor_data_history(nodeno)
+    return data
+
 @app.get("/sensor_data/{nodeno}", response_model=SensorData)
 def get_sensor_data(nodeno: int):
     data = get_sensor_data_by_no(nodeno) 
@@ -54,7 +61,6 @@ def get_sensor_data(nodeno: int):
 @app.get("/all_sensor_data", response_model=list[SensorData])
 def get_all_sensor_data():
     all_sensor_data = get_all_sensors()
-    print(all_sensor_data)
     return all_sensor_data
 
 @app.get("/control/node")
