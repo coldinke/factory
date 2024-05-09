@@ -1,0 +1,20 @@
+1713352481: mosquitto version 2.0.18 starting
+1713352481: Config loaded from ./example.conf.
+1713352481: Opening ipv6 listen socket on port 1883.
+1713352481: Error: Address already in use
+1713352505: mosquitto version 2.0.18 starting
+1713352505: Config loaded from ./example.conf.
+1713352505: Opening ipv6 listen socket on port 1883.
+1713352505: Error: Address already in use
+1713352531: mosquitto version 2.0.18 starting
+1713352531: Config loaded from ./example.conf.
+1713352531: Opening ipv6 listen socket on port 1883.
+1713352531: Error: Address already in use
+1713352536: mosquitto version 2.0.18 starting
+1713352536: Config loaded from ./example.conf.
+1713352536: Opening ipv6 listen socket on port 1883.
+1713352536: Error: Address already in use
+1713352543: mosquitto version 2.0.18 starting
+1713352543: Config loaded from ./example.conf.
+1713352543: Opening ipv6 listen socket on port 1883.
+1713352543: Error: Address already in use
