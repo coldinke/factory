@@ -3,17 +3,18 @@ import logging
 import asyncio
 import json
 from config import settings
-from db import get_sensor_data_by_no, get_all_sensors, get_sensor_data_history
+from db import get_sensor_data_by_no, get_all_sensors, get_sensor_data_history, get_control_data_form_db
 from fastapi import FastAPI, Request, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from mqtt_client import connect_to_mqtt, publish, subscribe, run_mqtt, get_mqtt_pub_client
 from utils import setup_logging
-from models import SensorData
+from models import SensorData, ControlData
 
 app = FastAPI()
 
+# For Cors.
 origins = [
     "http://localhost:8000",
     "https://localhost:8000",
@@ -63,13 +64,10 @@ def get_all_sensor_data():
     all_sensor_data = get_all_sensors()
     return all_sensor_data
 
-@app.get("/control/node")
-def control_node_endpoint(node_id: int, on_off: str):
-    message = {"nodeNo": node_id, "status": on_off}
-    message_json = json.dumps(message)
-    mqtt_pub_client = get_mqtt_pub_client(settings.mqtt_user, settings.mqtt_passwd, settings.mqtt_host, settings.app_port, settings.mqtt_keepalive)
-    publish(mqtt_pub_client, settings.mqtt_pub_topic, message_json)
-    return message 
+@app.get("/control_state", response_model=ControlData)
+def get_control_data():
+    data = get_control_data_form_db()
+    return data
 
 # @app.get("/", response_class=HTMLResponse)
 # async def render_html(request: Request):
