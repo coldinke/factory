@@ -13,6 +13,14 @@ class SensorData(BaseModel):
         super().__init__(**data)
         self.timestamp = datetime.now()
 
+class ControlData(BaseModel):
+    state: int
+    timestamp: datetime = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.timestamp = datetime.now()
+
 ############################ The below is belong to the database's data model ###########################
 # The database's table
 Base = declarative_base()
@@ -31,4 +39,12 @@ class SensorDataDB(Base):
                 humidity={self.humidity}, \
                     timestamp={self.timestamp})"
 
+class ControlDataDB(Base):
+    __tablename__ = 'control_data'
 
+    id = Column(Integer, primary_key=True)
+    state = Column(Integer)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"CO1Data(state={self.state}, timestamp={self.timestamp})"

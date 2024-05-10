@@ -76,3 +76,28 @@ def get_sensor_data_history(nodeno):
         return result
     finally:
         session.close() 
+
+def save_control_data(control_data):
+    session = Session()
+    try:
+        control_model = ControlData.parse_obj(control_data)
+        db_data = ControlDataDB(state=control_model.state, timestamp=control_model.timestamp)
+        logger.info("Control data: {db_data}")
+        session.add(db_data)
+        session.commit()
+        logger.info("Control data saved to database")
+    except Exception as e:
+            logger.error(f"Error saving control data: {e}")
+            raise
+    finally:
+        session.close()
+
+
+def get_control_data_form_db():
+    session = Session()
+    try:
+        result = session.query(ControlDataDB)\
+            .order_by(ControlDataDB.timestamp.desc()).first()
+        return result
+    finally:
+        session.close()

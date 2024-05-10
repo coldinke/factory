@@ -2,8 +2,8 @@ import json
 import logging
 import paho.mqtt.client as mqtt
 from paho.mqtt import client as mqtt_client
-from models import SensorData
-from db import save_sensor_data
+from models import SensorData, ControlData
+from db import save_sensor_data, save_control_data
 from utils import setup_logging
 from config import settings
 
@@ -55,13 +55,17 @@ async def subscribe(client, topic):
             data = json.loads(payload)
             sensor_data_list = list()
             for node_id, node_data in data.items():
-                sensor_data= SensorData(
-                    nodeno=int(node_data["nodeNo"]),
-                    temperature=node_data["temp"],
-                    humidity=node_data["humi"]
-                )
-                sensor_data_list.append(sensor_data.dict())
+                if node_id == "co1":
+                    control_data = ControlData(state=int(node_data["state"]))
+                else:
+                    sensor_data= SensorData(
+                        nodeno=int(node_data["nodeNo"]),
+                        temperature=node_data["temp"],
+                        humidity=node_data["humi"]
+                    )
+                    sensor_data_list.append(sensor_data.dict())
             save_sensor_data(sensor_data_list)
+            save_control_data(control_data) 
         except (ValueError, KeyError) as e:
             logger.error(f"Error parsing sensor data: {e}")
 
