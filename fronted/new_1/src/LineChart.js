@@ -1,67 +1,78 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 
-// 温度和湿度折线图组件
-const LineChart = ({ title, data }) => {
-  const chartRef = useRef(null);
-
-  useEffect(()=> {
-    var myChart = echarts.init(chartRef.current);
-
-    var option =  {
-      title: {
-        title: title
-      },
-      xAxis: {
-        type: 'time',
-        data: data.map(item => new Date(item.timestamp))
-      },
-      yAxis: {
-        type: 'value',
-        name: title
-      },
-      series: [
-        {
-          data: data.map(item => item.value),
-          type: 'line'
-        }
-      ]
-    };
-    myChart.setOption(option);
-  
-  }, title, data);
-
-  return <div ref={chartRef} className="line-chart" style={{ width: '80%', height: '350px'}} />;
-};
-
 const LineChartView = ({ nodeArray }) => {
-  const [temperatureData, setTemperatureData] = useState([]);
-  const [humidityData, setHumidityData] = useState([]);
+  const [averageHumidityData, setAverageHumidityData] = useState([]);
 
   useEffect(() => {
-    // 计算温度的平均值和时间戳
-    const temperatureMean = nodeArray.length > 0 ? nodeArray.reduce((acc, curr) => acc + curr.temperature, 0) / nodeArray.length : 0;
-    const temperatureTimestamp = Date.now();
+    const groupedData = nodeArray.reduce((acc, curr) => {
+      const timestamp = new Date(curr.timestamp).toISOString().split('T')[0];
+      if (!acc[timestamp]) {
+        acc[timestamp] = [];
+      }
+      acc[timestamp].push(curr);
+      return acc;
+    }, {});
 
-    // 计算湿度的平均值和时间戳
-    const humidityMean = nodeArray.length > 0 ? nodeArray.reduce((acc, curr) => acc + curr.humidity, 0) / nodeArray.length : 0;
-    const humidityTimestamp = Date.now();
+    const processedData = Object.entries(groupedData).map(([timestamp, nodes]) => {
+      const totalHumidity = nodes.reduce((sum, node) => sum + node.humidity, 0);
+      const averageHumidity = totalHumidity / nodes.length;
+      return {
+        timestamp: new Date(timestamp),
+        humidity: averageHumidity,
+      };
+    });
 
-    // 更新状态
-    setTemperatureData(prevData => [...prevData, { timestamp: temperatureTimestamp, value: temperatureMean }]);
-    setHumidityData(prevData => [...prevData, { timestamp: humidityTimestamp, value: humidityMean }]);
+    setAverageHumidityData(processedData);
+
+    const dataString = JSON.stringify(processedData);
+    localStorage.setItem('averageHumidityData', dataString);
+  
+    // 当组件重新加载时，从localStorage中读取数据
+    const storedData = JSON.parse(localStorage.getItem('averageHumidityData')) || [];
+    setAverageHumidityData(storedData);
   }, [nodeArray]);
 
+  console.log(averageHumidityData);
   return (
-    <div className="line-chart-view">
-      <div className="temperature-chart">
-        <LineChart title="平均温度" data={temperatureData} />
-      </div>
-      <div className="humidity-chart">
-        <LineChart title="平均湿度" data={humidityData} />
+    <div className='h-100'>
+      <div className="w-100 h-100">
+        <LineChart title="平均湿度" data={nodeArray} />
       </div>
     </div>
   );
 };
+
+const LineChart = ({ title, data }) => {
+  const chartRef = useRef(null);
+
+  useEffect(() => {
+    var myChart = echarts.init(chartRef.current);
+    var option = {
+      title: {
+        text: title,
+      },
+      xAxis: {
+        type: 'time',
+      },
+      yAxis: {
+        type: 'value',
+        name: '湿度',
+      },
+      series: [
+        {
+          data: data.map(item => [item.timestamp, item.humidity]),
+          type: 'line',
+          name: '平均湿度',
+        },
+      ],
+    };
+
+    myChart.setOption(option);
+  }, [title, data]);
+
+  return <div ref={chartRef} className="line-chart" style={{ width: '100%', height: '250px' }} />;
+};
+
 
 export default LineChartView;

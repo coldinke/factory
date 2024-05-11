@@ -1,0 +1,6 @@
+.custom-node {
+    border: 1px solid #000000; /* 蓝色边框 */
+    border-radius: 10px; /* 圆角 */
+    padding: 4px; /* 内边距 */
+    margin: 4px; /* 外边距 */
+  }
