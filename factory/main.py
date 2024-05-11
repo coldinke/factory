@@ -69,12 +69,6 @@ def get_control_data():
     data = get_control_data_form_db()
     return data
 
-# @app.get("/", response_class=HTMLResponse)
-# async def render_html(request: Request):
-#     return templates.TemplateResponse(
-#         request=request,
-#         name="index.html", 
-#         context={"request": request, "sensor_data": sensor_data})
 
 async def mqtt_subscribe(mqtt_client):
     await subscribe(mqtt_client, settings.mqtt_sub_topic)

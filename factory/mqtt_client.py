@@ -59,12 +59,14 @@ async def subscribe(client, topic):
                     control_data = ControlData(state=int(node_data["state"]))
                 else:
                     sensor_data= SensorData(
-                        nodeno=int(node_data["nodeNo"]),
+                        nodeno=int(node_data["nodeno"]),
                         temperature=node_data["temp"],
                         humidity=node_data["humi"]
                     )
                     sensor_data_list.append(sensor_data.dict())
+            print(1)
             save_sensor_data(sensor_data_list)
+            print(2)
             save_control_data(control_data) 
         except (ValueError, KeyError) as e:
             logger.error(f"Error parsing sensor data: {e}")

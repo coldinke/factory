@@ -2,7 +2,7 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from models import Base, SensorData, SensorDataDB
+from models import Base, SensorData, SensorDataDB, ControlData, ControlDataDB
 from utils import setup_logging
 from config import settings
 

@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     app_name: str = "Factory"
     app_host: str = "127.0.0.1"
     app_port: int = 8000
-    log_path: str = "./logs/factory.log"
+    log_path: str = "./factory.log"
     db_path: str = "sqlite:///data/sensors.db"
     # MQTT connection arguments
     mqtt_host: str = "ubuntu1.orb.local"
